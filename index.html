@@ -169,8 +169,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
     <h1>Study Tracker</h1>
@@ -205,59 +203,16 @@
     <div id="toast" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 20px; border-radius: 5px; display: none;">Saved!</div>
 
     <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVsxPh5qOsLwh5jq9Vp2DqWEGwcANLHq0",
-            authDomain: "study-progress-tracker-13a80.firebaseapp.com",
-            projectId: "study-progress-tracker-13a80",
-            storageBucket: "study-progress-tracker-13a80.firebasestorage.app",
-            messagingSenderId: "511450893700",
-            appId: "1:511450893700:web:a5008282b653b9370fa1d1"
-        };
+        let subjects = JSON.parse(localStorage.getItem("subjects")) || [
+            { name: "Math", topics: [{ name: "Algebra", subtopics: ["ex1.1", "ex1.2"] }, { name: "Geometry", subtopics: [] }, { name: "Calculus", subtopics: [] }], completed: [] },
+            { name: "Science", topics: [{ name: "Physics", subtopics: ["chapter 10 -> ex10.1", "chapter 10 -> ex10.2"] }, { name: "Chemistry", subtopics: [] }, { name: "Biology", subtopics: [] }], completed: [] }
+        ];
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        let countdownDate = localStorage.getItem("countdownDate") || null;
 
-        let subjects = [];
-        let countdownDate = null;
-
-        async function saveSubjects() {
-            const userDoc = db.collection('users').doc('sadnan');
-            await userDoc.set({ subjects });
+        function saveSubjects() {
+            localStorage.setItem("subjects", JSON.stringify(subjects));
             showToast("Progress saved!");
-        }
-
-        async function loadSubjects() {
-            const userDoc = db.collection('users').doc('sadnan');
-            const doc = await userDoc.get();
-            if (doc.exists) {
-                subjects = doc.data().subjects;
-            } else {
-                subjects = [
-                    { name: "Math", topics: [{ name: "Algebra", subtopics: ["ex1.1", "ex1.2"] }, { name: "Geometry", subtopics: [] }, { name: "Calculus", subtopics: [] }], completed: [] },
-                    { name: "Science", topics: [{ name: "Physics", subtopics: ["chapter 10 -> ex10.1", "chapter 10 -> ex10.2"] }, { name: "Chemistry", subtopics: [] }, { name: "Biology", subtopics: [] }], completed: [] }
-                ];
-            }
-            renderTracker();
-        }
-
-        async function setCountdown() {
-            const countdownInput = document.getElementById("countdownDate");
-            countdownDate = new Date(countdownInput.value).toISOString();
-            const userDoc = db.collection('users').doc('sadnan');
-            await userDoc.update({ countdownDate });
-            updateCountdown();
-            showToast("Countdown set!");
-        }
-
-        async function loadCountdown() {
-            const userDoc = db.collection('users').doc('sadnan');
-            const doc = await userDoc.get();
-            if (doc.exists) {
-                countdownDate = doc.data().countdownDate;
-            }
-            updateCountdown();
         }
 
         function renderTracker() {
@@ -595,7 +550,15 @@
             });
         }
 
-        async function updateCountdown() {
+        function setCountdown() {
+            const countdownInput = document.getElementById("countdownDate");
+            countdownDate = new Date(countdownInput.value).toISOString();
+            localStorage.setItem("countdownDate", countdownDate);
+            updateCountdown();
+            showToast("Countdown set!");
+        }
+
+        function updateCountdown() {
             const countdownElement = document.getElementById("countdown");
             if (!countdownDate) {
                 countdownElement.textContent = "No countdown set.";
@@ -619,8 +582,8 @@
             setTimeout(updateCountdown, 1000);
         }
 
-        loadSubjects();
-        loadCountdown();
+        renderTracker();
+        updateCountdown();
     </script>
 </body>
 </html>
