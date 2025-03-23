@@ -190,58 +190,6 @@
         // Reference to the subjects data in Firebase
         const subjectsRef = database.ref('subjects');
         const countdownRef = database.ref('countdownDate');
-    </script>
-</head>
-<body>
-    <h1>Study Tracker</h1>
-    <div class="countdown" id="countdown"></div>
-    <div id="tracker"></div>
-    <button onclick="toggleSettings()">Settings</button>
-    <button onclick="exportProgress()">Export Progress</button>
-    <input type="file" id="importFile" style="display: none;" onchange="importProgress(event)">
-    <button onclick="document.getElementById('importFile').click()">Import Progress</button>
-    <div id="settings" class="settings" style="display: none;">
-        <h2>Settings</h2>
-        <input type="text" id="newSubject" placeholder="New subject name">
-        <button onclick="addSubject()">Add Subject</button>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <input type="datetime-local" id="countdownDate">
-                <button onclick="setCountdown()">Set Countdown</button>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Subject</th>
-                    <th>Topics</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="subjectSettings"></tbody>
-        </table>
-    </div>
-
-    <div id="toast" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 20px; border-radius: 5px; display: none;">Saved!</div>
-
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVsxPh5qOsLwh5jq9Vp2DqWEGwcANLHq0",
-            authDomain: "study-progress-tracker-13a80.firebaseapp.com",
-            projectId: "study-progress-tracker-13a80",
-            storageBucket: "study-progress-tracker-13a80.appspot.com",
-            messagingSenderId: "511450893700",
-            appId: "1:511450893700:web:a5008282b653b9370fa1d1"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Reference to the subjects data in Firebase
-        const subjectsRef = database.ref('subjects');
-        const countdownRef = database.ref('countdownDate');
 
         // Load subjects from Firebase
         subjectsRef.on('value', (snapshot) => {
@@ -555,7 +503,7 @@
                     const contents = e.target.result;
                     try {
                         subjects = JSON.parse(contents);
-                        saveSubjects();
+                        saveSubjects(); // Save imported subjects to Firebase
                         renderTracker();
                         renderSettings();
                         showToast("Progress imported!");
