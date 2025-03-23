@@ -169,45 +169,49 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
-    <!-- Add Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+</head>
+<body>
+    <h1>Study Tracker</h1>
+    <div class="countdown" id="countdown"></div>
+    <div id="tracker"></div>
+    <button onclick="toggleSettings()">Settings</button>
+    <button onclick="exportProgress()">Export Progress</button>
+    <input type="file" id="importFile" style="display: none;" onchange="importProgress(event)">
+    <button onclick="document.getElementById('importFile').click()">Import Progress</button>
+    <div id="settings" class="settings" style="display: none;">
+        <h2>Settings</h2>
+        <input type="text" id="newSubject" placeholder="New subject name">
+        <button onclick="addSubject()">Add Subject</button>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <input type="datetime-local" id="countdownDate">
+                <button onclick="setCountdown()">Set Countdown</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Topics</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="subjectSettings"></tbody>
+        </table>
+    </div>
+
+    <div id="toast" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 20px; border-radius: 5px; display: none;">Saved!</div>
+
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVsxPh5qOsLwh5jq9Vp2DqWEGwcANLHq0",
-            authDomain: "study-progress-tracker-13a80.firebaseapp.com",
-            projectId: "study-progress-tracker-13a80",
-            storageBucket: "study-progress-tracker-13a80.appspot.com",
-            messagingSenderId: "511450893700",
-            appId: "1:511450893700:web:a5008282b653b9370fa1d1"
-        };
+        let subjects = JSON.parse(localStorage.getItem("subjects")) || [
+            { name: "Math", topics: [{ name: "Algebra", subtopics: ["ex1.1", "ex1.2"] }, { name: "Geometry", subtopics: [] }, { name: "Calculus", subtopics: [] }], completed: [] },
+            { name: "Science", topics: [{ name: "Physics", subtopics: ["chapter 10 -> ex10.1", "chapter 10 -> ex10.2"] }, { name: "Chemistry", subtopics: [] }, { name: "Biology", subtopics: [] }], completed: [] }
+        ];
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Reference to the subjects data in Firebase
-        const subjectsRef = database.ref('subjects');
-        const countdownRef = database.ref('countdownDate');
-
-        // Load subjects from Firebase
-        subjectsRef.on('value', (snapshot) => {
-            subjects = snapshot.val() || [
-                { name: "Math", topics: [{ name: "Algebra", subtopics: ["ex1.1", "ex1.2"] }, { name: "Geometry", subtopics: [] }, { name: "Calculus", subtopics: [] }], completed: [] },
-                { name: "Science", topics: [{ name: "Physics", subtopics: ["chapter 10 -> ex10.1", "chapter 10 -> ex10.2"] }, { name: "Chemistry", subtopics: [] }, { name: "Biology", subtopics: [] }], completed: [] }
-            ];
-            renderTracker();
-        });
-
-        // Load countdown date from Firebase
-        countdownRef.on('value', (snapshot) => {
-            countdownDate = snapshot.val();
-            updateCountdown();
-        });
+        let countdownDate = localStorage.getItem("countdownDate") || null;
 
         function saveSubjects() {
-            subjectsRef.set(subjects);
+            localStorage.setItem("subjects", JSON.stringify(subjects));
             showToast("Progress saved!");
         }
 
@@ -503,7 +507,7 @@
                     const contents = e.target.result;
                     try {
                         subjects = JSON.parse(contents);
-                        saveSubjects(); // Save imported subjects to Firebase
+                        saveSubjects();
                         renderTracker();
                         renderSettings();
                         showToast("Progress imported!");
@@ -549,7 +553,7 @@
         function setCountdown() {
             const countdownInput = document.getElementById("countdownDate");
             countdownDate = new Date(countdownInput.value).toISOString();
-            countdownRef.set(countdownDate);
+            localStorage.setItem("countdownDate", countdownDate);
             updateCountdown();
             showToast("Countdown set!");
         }
